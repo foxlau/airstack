@@ -1,0 +1,120 @@
+name: 🧪 Installation & Integration Tests
+
+on:
+  workflow_dispatch:
+    # inputs:
+    #   ubuntu_version:
+    #     description: "Ubuntu Version"
+    #     required: true
+    #     type: choice
+    #     options:
+    #       - "ubuntu-24.04"
+    #       - "ubuntu-22.04"
+    #       - "ubuntu-20.04"
+    #     default: "ubuntu-24.04"
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
+        # os:
+        #   - ${{ github.event.inputs.ubuntu_version }}
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Install Expect Package
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: expect
+          version: 1.0
+
+      - name: 🧹 Clean System Environment
+        run: |
+          # Remove existing packages if installed
+          sudo apt-get --purge remove -y nginx nginx-common nginx-full nodejs
+          sudo apt-get --purge remove -y mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
+          sudo apt-get --purge remove -y postgresql postgresql-*
+          sudo apt-get --purge remove -y snapd firefox
+
+          # Clean up
+          sudo apt-get autoremove -y
+          sudo apt-get clean
+
+          # Remove potential leftover configuration files
+          sudo rm -rf /etc/nginx
+          sudo rm -rf /etc/nodejs
+          sudo rm -rf /etc/mysql
+          sudo rm -rf /etc/postgresql
+
+      - name: 🧪 Execute Installation Tests
+        working-directory: ${{ github.workspace }}
+        run: |
+          # Create logs directory and set permissions
+          sudo mkdir -p logs
+          sudo chmod 777 logs
+
+          # Set execute permissions for all scripts
+          sudo chmod +x install.sh uninstall.sh vhost.sh
+          sudo chmod +x tests/scripts/*.exp
+
+          # Run installation test with proper working directory
+          sudo -E ./tests/scripts/install_test.exp
+
+      - name: 🚀 Validate Deployment Status
+        run: |
+          # Source all environment files
+          source /etc/profile.d/nodejs.sh
+          source ~/.bashrc
+
+          # Fix npm cache permissions
+          sudo chown -R $(whoami) /home/runner/.npm
+
+          # Change to application directory
+          cd ./tests/template/express
+
+          # Install dependencies
+          npm install
+
+          # Start application with PM2
+          pm2 start ecosystem.config.cjs && pm2 save
+
+          echo "Verify application status"
+          curl -I -s http://localhost:3000 | head -n 1
+
+          echo "Application started successfully."
+
+      - name: 🌐 Configure and Test Virtual Host
+        run: |
+          # Run vhost test
+          sudo -E ./tests/scripts/vhost_test.exp
+
+          # Update hosts file with all domains in one line
+          sudo sed -i '1s/127.0.0.1 localhost/127.0.0.1 localhost test.local www.test.local/' /etc/hosts
+
+          # Restart nginx to apply changes
+          sudo systemctl restart nginx
+
+          echo "Testing test.local"
+          curl -I -s http://test.local | head -n 1
+
+          echo "Testing www.test.local"
+          curl -I -s http://www.test.local | head -n 1
+
+          echo "All tests completed successfully."
+
+      - name: 🗑️ Perform Uninstallation Tests
+        run: |
+          # Run uninstallation test
+          sudo -E ./tests/scripts/uninstall_test.exp
+
+      - name: 📤 Upload logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: installation-logs-${{ matrix.os }}
+          path: logs/
+          retention-days: 1

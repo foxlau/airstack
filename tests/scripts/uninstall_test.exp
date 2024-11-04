@@ -1,0 +1,17 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+# Use path relative to repository root
+spawn ./uninstall.sh
+
+# Wait for component selection menu
+expect "Enter component numbers to uninstall (space-separated, e.g., '1 2 3'): "
+send "1 2 3 4 5 6\r"
+
+# Wait for confirmation prompt
+expect "Proceed with uninstallation? (y/N): "
+send "y\r"
+
+# Wait for completion
+expect eof 

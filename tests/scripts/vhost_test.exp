@@ -1,0 +1,32 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+# Use path relative to repository root
+spawn ./vhost.sh
+
+# Primary domain
+expect "Please enter primary domain (e.g., example.com): "
+send "test.local\r"
+
+# Secondary domain
+expect "Would you like to add an additional domain? (y/N): "
+send "y\r"
+
+expect "Please enter additional domain (e.g., www.example.com): "
+send "www.test.local\r"
+
+# Domain redirect
+expect "Redirect secondary domain to primary domain? (Y/n): "
+send "y\r"
+
+# Node.js port
+expect "Please enter Node.js port (default: 3000): "
+send "3000\r"
+
+# SSL option - select HTTP only
+expect "You can input the number of the option: "
+send "1\r"
+
+# Wait for completion
+expect eof

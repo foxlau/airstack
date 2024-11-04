@@ -1,0 +1,33 @@
+#!/usr/bin/expect -f
+
+set timeout 300
+
+# Use path relative to repository root
+spawn ./install.sh
+
+# Web server stack installation
+expect "Do you want to install the web server stack? (Y/n): "
+send "y\r"
+
+# Database selection
+expect "Select an option (1-2/n): "
+send "1\r"
+
+# Redis installation
+expect "Do you want to install Redis (in-memory data store)? (y/N): "
+send "y\r"
+
+# Fail2ban installation
+expect "Do you want to install Fail2ban (Intrusion Prevention System)? (y/N): "
+send "y\r"
+
+# Installation confirmation
+expect "Review selections and proceed with installation? (Y/n): "
+send "y\r"
+
+# System reboot prompt
+expect "Do you want to reboot the system now? (y/N): "
+send "n\r"
+
+# Wait for completion
+expect eof
