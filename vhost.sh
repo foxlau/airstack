@@ -400,6 +400,16 @@ cleanup_initial_config() {
     rm -rf "$web_root"
 }
 
+# Download SSL configuration file if not exists
+download_ssl_config() {
+    if [ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]; then
+        info "Downloading SSL configuration file..."
+        if ! wget -q https://raw.githubusercontent.com/certbot/certbot/main/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf -P /etc/letsencrypt/; then
+            error_exit "Failed to download SSL configuration file"
+        fi
+    fi
+}
+
 # Setup Let's Encrypt SSL
 setup_letsencrypt() {
     local primary_domain=$1
@@ -426,12 +436,7 @@ setup_letsencrypt() {
         apt-get install -y certbot python3-certbot-nginx
     fi
     
-    if [ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]; then
-        info "Downloading SSL configuration file..."
-        if ! wget -q https://raw.githubusercontent.com/certbot/certbot/main/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf -P /etc/letsencrypt/; then
-            error_exit "Failed to download SSL configuration file"
-        fi
-    fi
+    download_ssl_config
 
     if [ ! -f /etc/letsencrypt/ssl-dhparams.pem ]; then
         info "Generating DH parameters (2048 bit), this might take a moment..."
@@ -480,6 +485,7 @@ setup_letsencrypt() {
 if [ "$ssl_type" = "letsencrypt" ]; then
     setup_letsencrypt "$primary_domain" "$secondary_domain"
 elif [ "$ssl_type" = "custom" ]; then
+    download_ssl_config
     cert_path="/etc/nginx/ssl/${primary_domain}"
     mkdir -p "$cert_path"
 fi
