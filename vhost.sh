@@ -319,6 +319,7 @@ EOF
     # Let's Encrypt SSL certificate configuration
     ssl_certificate /etc/letsencrypt/live/${primary_domain}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${primary_domain}/privkey.pem;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 EOF
     elif [ "$ssl_type" = "custom" ]; then
         cat >> "$config_file" <<EOF
@@ -330,7 +331,6 @@ EOF
 
     cat >> "$config_file" <<EOF
     include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
 EOF
 
