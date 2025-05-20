@@ -10,7 +10,6 @@ on:
     #     options:
     #       - "ubuntu-24.04"
     #       - "ubuntu-22.04"
-    #       - "ubuntu-20.04"
     #     default: "ubuntu-24.04"
 
 jobs:
@@ -19,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
+        os: [ubuntu-22.04, ubuntu-24.04]
         # os:
         #   - ${{ github.event.inputs.ubuntu_version }}
 

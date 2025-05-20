@@ -21,7 +21,7 @@ AirStack makes self-hosting as simple as serverless - just one script to set up 
 ## ✅ Verified Environments
 
 - DigitalOcean: 1vCPU/512MB VPS
-- Ubuntu 20.04, 22.04, 24.04 LTS [![Installation & Integration Tests](https://github.com/foxlau/airstack/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/foxlau/airstack/actions/workflows/integration-tests.yml)
+- Ubuntu 22.04, 24.04 LTS [![Installation & Integration Tests](https://github.com/foxlau/airstack/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/foxlau/airstack/actions/workflows/integration-tests.yml)
 
 ## 🛠️ Supported Frameworks
 
