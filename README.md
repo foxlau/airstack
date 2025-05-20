@@ -50,6 +50,14 @@ sudo ./vhost.sh
 sudo ./uninstall.sh
 ```
 
+## 📚 Documentation
+
+Detailed documentation is available in multiple languages:
+
+- [English Documentation](docs/en/README.md)
+- [中文文档](docs/zh/README.md)
+- [日本語ドキュメント](docs/ja/README.md)
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
