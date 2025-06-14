@@ -34,6 +34,8 @@ chmod +x install.sh uninstall.sh vhost.sh
 sudo ./install.sh
 ```
 
+脚本会将所有安装步骤记录到 `logs/install_YYYYMMDD_HHMMSS.log` 文件中。
+
 3. 按照交互式提示进行操作：
 
 - **Web 服务器堆栈**：安装 Nginx、Node.js 和 PM2（进程管理器）
@@ -160,6 +162,30 @@ sudo ./uninstall.sh
 - 应用程序文件
 - 配置文件
 
+## 服务器健康检查
+
+AirStack 包含一个全面的脚本 (`check.sh`)，用于监控您的服务器健康状况并执行安全审计。
+
+### 如何运行
+
+```bash
+sudo ./check.sh
+```
+
+### 功能特性
+
+该脚本会检查并报告以下内容：
+
+- **系统信息**：操作系统、内核、运行时间。
+- **资源使用情况**：CPU、内存和磁盘空间。
+- **高资源消耗进程**：列出消耗最多 CPU 和内存的进程。
+- **服务状态**：验证 Nginx、PM2 和数据库等关键服务的状态。
+- **安全审计**：涵盖用户账户、文件权限、网络暴露等的详细审计。
+
+### 审计报告
+
+详细的安全审计报告会自动保存到 `logs/` 目录下（例如 `logs/server_check_YYYYMMDD_HHMMSS.txt`）。此报告提供了检查结果的摘要，包括高风险项、警告和建议。
+
 ## 支持的操作系统
 
 AirStack 在以下系统上测试和支持：
@@ -169,54 +195,47 @@ AirStack 在以下系统上测试和支持：
 
 ## 安全性建议
 
-AirStack 包含了 Fail2ban 用于基本安全防护，但对于生产环境，还建议采取其他安全措施。
+为确保您的服务器安全，AirStack 预先配置了防火墙和入侵防御系统。
 
-### 防火墙配置
+### 防火墙 (UFW)
 
-**重要**：AirStack 目前不配置防火墙。强烈建议在您的服务器上设置防火墙以增强安全性。
+AirStack 安装脚本会自动安装并配置 `UFW` (Uncomplicated Firewall)。
 
-#### 使用 UFW（简易防火墙）
+**默认规则**
 
-UFW 是 Ubuntu 推荐的防火墙。以下是设置方法：
+- **允许** SSH (22), HTTP (80), 和 HTTPS (443) 端口的入站流量。
+- **拒绝** 其他所有入站流量。
+- **允许** 所有出站流量。
 
-1. 如果尚未安装 UFW，请安装：
+**常用命令**
 
-```bash
-sudo apt-get install ufw
-```
+- 查看状态：
+  ```bash
+  sudo ufw status verbose
+  ```
+- 开放其他端口（例如 `3000/tcp`）：
+  ```bash
+  sudo ufw allow 3000/tcp
+  ```
 
-2. 设置默认策略：
+### 入侵防御 (Fail2ban)
 
-```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-```
+AirStack 自动安装并配置 `Fail2ban`，用于监控日志并阻止可疑的 IP 地址。
 
-3. 允许必要的服务：
+**默认规则 (SSH 保护)**
 
-```bash
-# 允许 SSH 以防止被锁定
-sudo ufw allow ssh
+- 如果一个 IP 地址在 10 分钟内登录失败 5 次，该 IP 将被封禁 24 小时。
 
-# 允许 HTTP/HTTPS 用于 Web 服务器
-sudo ufw allow http
-sudo ufw allow https
+**常用命令**
 
-# 可选：如果需要，允许应用程序的特定端口
-sudo ufw allow 3000/tcp
-```
-
-4. 启用防火墙：
-
-```bash
-sudo ufw enable
-```
-
-5. 检查状态：
-
-```bash
-sudo ufw status verbose
-```
+- 查看封禁状态：
+  ```bash
+  sudo fail2ban-client status sshd
+  ```
+- 手动解封 IP：
+  ```bash
+  sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
+  ```
 
 ### 其他安全措施
 

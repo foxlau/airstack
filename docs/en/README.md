@@ -34,6 +34,8 @@ chmod +x install.sh uninstall.sh vhost.sh
 sudo ./install.sh
 ```
 
+The script will log all installation steps to `logs/install_YYYYMMDD_HHMMSS.log`.
+
 3. Follow the interactive prompts:
 
 - **Web server stack**: Installs Nginx, Node.js, and PM2 (Process Manager)
@@ -160,6 +162,30 @@ sudo ./uninstall.sh
 - Application files
 - Configuration files
 
+## Server Health Check
+
+AirStack includes a comprehensive script (`check.sh`) to monitor your server's health and perform a security audit.
+
+### How to Run
+
+```bash
+sudo ./check.sh
+```
+
+### Features
+
+The script checks and reports on:
+
+- **System Information**: OS, kernel, uptime.
+- **Resource Usage**: CPU, memory, and disk space.
+- **Top Processes**: Lists processes consuming the most CPU and memory.
+- **Service Status**: Verifies the status of key services like Nginx, PM2, and your database.
+- **Security Audit**: A detailed audit covering user accounts, file permissions, network exposure, and more.
+
+### Audit Report
+
+A detailed security audit report is automatically saved to the `logs/` directory (e.g., `logs/server_check_YYYYMMDD_HHMMSS.txt`). This report provides a summary of findings, including high-risk items, warnings, and recommendations.
+
 ## Supported Operating Systems
 
 AirStack is tested and supported on:
@@ -169,54 +195,47 @@ AirStack is tested and supported on:
 
 ## Security Recommendations
 
-AirStack includes Fail2ban for basic security, but additional measures are recommended for production environments.
+To ensure your server's security, AirStack comes with a pre-configured firewall and intrusion prevention system.
 
-### Firewall Configuration
+### Firewall (UFW)
 
-**Important:** AirStack does not currently configure a firewall. It is strongly recommended to set up a firewall on your server for enhanced security.
+The AirStack installation script automatically installs and configures `UFW` (Uncomplicated Firewall).
 
-#### Using UFW (Uncomplicated Firewall)
+**Default Rules**
 
-UFW is the recommended firewall for Ubuntu. Here's how to set it up:
+- **Allows** incoming traffic on ports for SSH (22), HTTP (80), and HTTPS (443).
+- **Denies** all other incoming traffic.
+- **Allows** all outgoing traffic.
 
-1. Install UFW if not already installed:
+**Common Commands**
 
-```bash
-sudo apt-get install ufw
-```
+- Check status:
+  ```bash
+  sudo ufw status verbose
+  ```
+- Open another port (e.g., `3000/tcp`):
+  ```bash
+  sudo ufw allow 3000/tcp
+  ```
 
-2. Set default policies:
+### Intrusion Prevention (Fail2ban)
 
-```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-```
+AirStack automatically installs and configures `Fail2ban` to monitor logs and block suspicious IP addresses.
 
-3. Allow essential services:
+**Default Rule (SSH Protection)**
 
-```bash
-# Allow SSH to prevent being locked out
-sudo ufw allow ssh
+- If an IP address fails to log in 5 times within 10 minutes, it will be banned for 24 hours.
 
-# Allow HTTP/HTTPS for web server
-sudo ufw allow http
-sudo ufw allow https
+**Common Commands**
 
-# Optional: Allow specific ports for your application if needed
-sudo ufw allow 3000/tcp
-```
-
-4. Enable the firewall:
-
-```bash
-sudo ufw enable
-```
-
-5. Check status:
-
-```bash
-sudo ufw status verbose
-```
+- Check ban status:
+  ```bash
+  sudo fail2ban-client status sshd
+  ```
+- Manually unban an IP:
+  ```bash
+  sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
+  ```
 
 ### Additional Security Measures
 

@@ -38,9 +38,10 @@ AirStack makes self-hosting as simple as serverless - just one script to set up 
 # Clone and install
 git clone https://github.com/foxlau/airstack.git
 cd airstack
-chmod +x install.sh uninstall.sh vhost.sh
+e install.sh uninstall.sh vhost.sh check.sh
 
 # Installation completed! It's recommended to reboot your system before proceeding.
+# Installation logs are stored in the `logs/` directory.
 sudo ./install.sh
 
 # Configure Nginx virtual hosts
@@ -48,6 +49,10 @@ sudo ./vhost.sh
 
 # Uninstall (if needed)
 sudo ./uninstall.sh
+
+# Server check
+# Performs a comprehensive server health and security check. Detailed reports are saved in the `logs/` directory.
+sudo ./check.sh
 ```
 
 ## 📚 Documentation
