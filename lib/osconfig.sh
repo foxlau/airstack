@@ -79,8 +79,19 @@ if [ ! -e ~/.airstack ] && [ ! -e /swapfile ] && [ ${MEMORY_MB} -le 2048 ]; then
 fi
 
 # Install essential packages
-BASIC_PACKAGES=("git" "zip" "unzip")
+BASIC_PACKAGES=("git" "zip" "unzip" "ufw")
 apt-get -y install "${BASIC_PACKAGES[@]}"
+
+# Configure UFW firewall
+if command -v ufw &> /dev/null; then
+    sed -i 's/IPV6=no/IPV6=yes/' /etc/default/ufw
+    ufw default deny incoming
+    ufw default allow outgoing
+    ufw allow 22/tcp
+    ufw allow 80/tcp
+    ufw allow 443/tcp
+    ufw --force enable
+fi
 
 # Reload system configuration
 source /etc/profile

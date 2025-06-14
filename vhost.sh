@@ -2,12 +2,6 @@
 # Nginx Virtual Host Setup Script for AirStack
 # Supports HTTP, HTTPS with Let's Encrypt, and custom SSL certificates
 
-# Check if user is root
-if [ "$(id -u)" != "0" ]; then
-    error "This script requires root privileges. Please run with sudo."
-    exit 1
-fi
-
 # Get script directory and set working directory
 AIRSTACK_DIR=$(dirname "`readlink -f $0`")
 pushd ${AIRSTACK_DIR} > /dev/null
@@ -15,13 +9,16 @@ pushd ${AIRSTACK_DIR} > /dev/null
 . lib/utils.sh
 . lib/oscheck.sh
 
+# Privilege check
+require_sudo
+
 # Check if nginx is installed and directories exist
 if ! command -v nginx &> /dev/null; then
     error_exit "Nginx could not be found"
 fi
 
 # Welcome message
-welcome
+welcome "Nginx Virtual Host Setup"
 warning "Before proceeding, please ensure:"
 warning_plain "  Your domain is pointing directly to this server's IP address"
 warning_plain "  DNS propagation is complete (may take up to 24-48 hours)"

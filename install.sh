@@ -2,12 +2,6 @@
 # Install script for AirStack
 # Supports installation of Node.js, Nginx, MySQL, PostgreSQL, Redis, and Fail2ban on Ubuntu20+
 
-# Check if user is root
-if [ "$(id -u)" != "0" ]; then
-    error "This script requires root privileges. Please run with sudo."
-    exit 1
-fi
-
 # Get script directory and set working directory
 AIRSTACK_DIR=$(dirname "`readlink -f $0`")
 pushd ${AIRSTACK_DIR} > /dev/null
@@ -15,7 +9,11 @@ pushd ${AIRSTACK_DIR} > /dev/null
 . lib/utils.sh
 . lib/oscheck.sh
 
-welcome
+# Privilege check
+require_sudo
+
+# Welcome message
+welcome "Installer"
 
 # Common variables
 LOG_FILE="${AIRSTACK_DIR}/logs/install_$(date +%Y%m%d_%H%M%S).log"

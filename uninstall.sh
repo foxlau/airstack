@@ -1,12 +1,6 @@
 #!/bin/bash
 # Uninstall script for AirStack
 
-# Privilege check
-if [ "$(id -u)" != "0" ]; then
-    error "This script requires root privileges. Please run with sudo."
-    exit 1
-fi
-
 # Get script directory and set working directory
 AIRSTACK_DIR=$(dirname "`readlink -f $0`")
 pushd ${AIRSTACK_DIR} > /dev/null
@@ -14,7 +8,11 @@ pushd ${AIRSTACK_DIR} > /dev/null
 . lib/utils.sh
 . lib/oscheck.sh
 
-welcome
+# Privilege check
+require_sudo
+
+# Welcome message
+welcome "Uninstaller"
 warning "Please ensure all data is backed up before proceeding with uninstallation."
 
 # Component list
